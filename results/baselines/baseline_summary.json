@@ -1,74 +1,98 @@
 {
   "random": {
-    "mean_reward": -2659.175048828125,
-    "std_reward": 1980.1741943359375,
-    "episodes": 20,
+    "mean_reward": -3435.216552734375,
+    "std_reward": 2511.29248046875,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      -2659.175048828125
+      -2659.175048828125,
+      -4013.85009765625,
+      -3632.625
     ]
   },
   "base_stock": {
-    "mean_reward": -3979.175048828125,
-    "std_reward": 833.8605346679688,
-    "episodes": 20,
+    "mean_reward": -3885.2333984375,
+    "std_reward": 824.7842407226562,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      -3979.175048828125
+      -3979.175048828125,
+      -3787.875,
+      -3888.64990234375
     ]
   },
   "dqn": {
-    "mean_reward": 758.0750122070312,
-    "std_reward": 90.26921844482422,
-    "episodes": 20,
+    "mean_reward": 760.933349609375,
+    "std_reward": 109.97093200683594,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      758.0750122070312
+      789.9500122070312,
+      744.6749877929688,
+      748.1749877929688
     ]
   },
   "double_dqn": {
-    "mean_reward": 819.1500244140625,
-    "std_reward": 83.33773040771484,
-    "episodes": 20,
+    "mean_reward": 797.191650390625,
+    "std_reward": 117.85474395751953,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      819.1500244140625
+      813.0,
+      777.2249755859375,
+      801.3499755859375
     ]
   },
   "dueling_dqn": {
-    "mean_reward": 763.0,
-    "std_reward": 100.82087707519531,
-    "episodes": 20,
+    "mean_reward": 781.2333374023438,
+    "std_reward": 126.04560852050781,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      763.0
+      792.5250244140625,
+      762.0250244140625,
+      789.1500244140625
     ]
   },
   "dueling_double_dqn": {
-    "mean_reward": 831.9500122070312,
-    "std_reward": 104.3564682006836,
-    "episodes": 20,
+    "mean_reward": 804.4583129882812,
+    "std_reward": 114.57862091064453,
+    "episodes": 60,
     "train_seeds": [
-      42
+      42,
+      123,
+      456
     ],
     "eval_episodes_per_seed": 20,
     "seed_mean_rewards": [
-      831.9500122070312
+      838.5499877929688,
+      787.0999755859375,
+      787.7249755859375
     ]
   }
 }
