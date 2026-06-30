@@ -211,6 +211,15 @@ def train_ppo(env: BeerGameEnv, agent: PPOAgent, cfg: dict):
 
     use_system_reward = bool(cfg.get("use_system_reward", False))
 
+    use_relative_reward = bool(cfg.get("use_relative_reward", False))
+    baseline_policy = str(cfg.get("baseline_policy", "base_stock"))
+    baseline_target = int(cfg.get("baseline_target", env.config.initial_inventory))
+
+    # Optional precomputed baseline value function for relative rewards.
+    baseline_values: dict[int, float] | None = None
+    if use_relative_reward:
+        baseline_values = {}
+
     scores = []
 
     total_updates = max(1, episodes // rollout_episodes)
@@ -226,6 +235,15 @@ def train_ppo(env: BeerGameEnv, agent: PPOAgent, cfg: dict):
         ep_others_cost = 0.0
         ep_length = 0
         last_action = None
+
+        # For relative reward: rollout a baseline policy on the same demand stream.
+        if use_relative_reward:
+            baseline_env = BeerGameEnv(env.config)
+            baseline_env.rng = np.random.default_rng(base_seed + episode)
+            baseline_env.reset(seed=base_seed + episode)
+            baseline_state = state.copy()
+            baseline_reward_sum = 0.0
+            baseline_step = 0
 
         while not done:
             obs_state = env.get_augmented_observation() if use_augmented_obs else state
@@ -248,6 +266,25 @@ def train_ppo(env: BeerGameEnv, agent: PPOAgent, cfg: dict):
                 shaped_reward -= smooth_coef * abs(int(action) - int(last_action)) * reward_scale
             last_action = action
 
+            if use_relative_reward:
+                # Step baseline policy on a cloned environment with identical randomness.
+                baseline_actions = make_background_actions(
+                    baseline_env,
+                    baseline_state,
+                    agent.firm_id,
+                    np.random.default_rng(base_seed + episode + baseline_step),
+                    background_policy=baseline_policy,
+                    target_inventory=baseline_target,
+                )
+                baseline_actions[agent.firm_id] = np.clip(
+                    round(baseline_target - baseline_state[agent.firm_id, 2]), 0, env.config.max_order
+                )
+                baseline_next_state, baseline_rewards, baseline_done, _ = baseline_env.step(baseline_actions)
+                baseline_reward_sum += float(baseline_rewards[agent.firm_id, 0])
+                shaped_reward = (raw_reward - float(baseline_rewards[agent.firm_id, 0])) * reward_scale
+                baseline_state = baseline_next_state
+                baseline_step += 1
+
             agent.store_transition(shaped_reward, done)
             state = next_state
             score += raw_reward
@@ -266,6 +303,9 @@ def train_ppo(env: BeerGameEnv, agent: PPOAgent, cfg: dict):
                         continue
                     lost = max(float(demand[j]) - float(satisfied[j]), 0.0)
                     ep_others_cost += h * float(inventory[j]) + c * lost
+
+        if use_relative_reward and ep_length > 0:
+            baseline_values[episode] = baseline_reward_sum / ep_length
 
         if ep_length > 0:
             if use_feedback:
@@ -300,7 +340,7 @@ def train_ppo(env: BeerGameEnv, agent: PPOAgent, cfg: dict):
         next_critic_state_for_update = obs_state.flatten()
         agent.update(next_state_for_update, next_critic_state_for_update)
 
-    return np.asarray(scores, dtype=np.float32)
+    return np.asarray(scores, dtype=np.float32), baseline_values
 
 
 def train_ppo_best(
